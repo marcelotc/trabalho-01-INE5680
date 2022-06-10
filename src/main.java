@@ -6,7 +6,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-public class trabalho1 {
+public class main {
     
     public static void menu(){
         System.out.println("\tCadastro de clientes");
