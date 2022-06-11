@@ -1,6 +1,7 @@
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Scanner;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -18,10 +19,7 @@ public class main {
     }
 
     public static void signUp(){
-    String Username;
-    String Password;
-    
-    JSONObject obj = new JSONObject();
+        JSONObject obj = new JSONObject();
         JSONArray jrr = new JSONArray();
         JSONParser jp = new JSONParser();
         try{
@@ -87,7 +85,7 @@ public class main {
                 JOptionPane.showMessageDialog(null,"Usuário logado!");
                 break;
             }else if(i==size-1){
-                JOptionPane.showMessageDialog(null,"Senha incorreta!");
+                JOptionPane.showMessageDialog(null,"Usuário/Senha incorreta!");
             }
         }
     }
@@ -97,6 +95,9 @@ public class main {
     }
     
     public static void main(String[] args) {
+        final JDialog dialog = new JDialog();
+        dialog.setAlwaysOnTop(true);  
+        
         int opcao;
         Scanner entrada = new Scanner(System.in);
         
