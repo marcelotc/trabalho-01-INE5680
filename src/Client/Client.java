@@ -1,3 +1,5 @@
+package Client;
+
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Scanner;
@@ -6,8 +8,15 @@ import javax.swing.JOptionPane;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import AuthToken.AuthTokenPBKDF;
+import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.net.*;
+import java.io.*;
 
-public class main {
+public class Client {
     
     public static void menu(){
         System.out.println("\tCadastro de clientes");
@@ -18,7 +27,7 @@ public class main {
         System.out.println("Opcao:");
     }
 
-    public static void signUp(){
+    public static void signUp(Socket i) throws NoSuchAlgorithmException, IOException{
         JSONObject obj = new JSONObject();
         JSONArray jrr = new JSONArray();
         JSONParser jp = new JSONParser();
@@ -36,10 +45,29 @@ public class main {
         Scanner input2 = new Scanner(System.in);
         System.out.println("Senha : ");
         String password = input2.next();
-
         
+        /*Gera token de autenticação*/
+        String authToken = AuthTokenPBKDF.AuthTokenGenerator(password, username, 1000);
+        
+        System.out.println("AuthToken gerado: " + authToken);
+        
+        /*Manda token de autenticação para o servidor*/
+        PrintWriter pr = new PrintWriter(i.getOutputStream());
+        pr.println(authToken);
+        pr.flush();
+        
+        InputStreamReader in = new InputStreamReader(i.getInputStream());
+        BufferedReader bf = new BufferedReader(in);
+        
+        String str = bf.readLine();
+        System.out.println("mensagem do servidor : "+ str);
+        
+        String timeStamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        
+        /*Salva dados no JSON*/
         obj.put("Username", username);
-        obj.put("Password", password);
+        obj.put("Token", authToken);           
+        obj.put("Time", timeStamp);        
         jrr.add(obj);
         
         try{
@@ -94,7 +122,12 @@ public class main {
         System.out.println("delete!");
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
+        
+        /*Abre a comunicação via socket com o servidor*/
+        Socket i = new Socket("localhost", 4999);
+        /*================================================*/
+
         final JDialog dialog = new JDialog();
         dialog.setAlwaysOnTop(true);  
         
@@ -107,7 +140,7 @@ public class main {
             
             switch(opcao){
             case 1:
-                signUp();
+                signUp(i);
                 break;
                 
             case 2:
