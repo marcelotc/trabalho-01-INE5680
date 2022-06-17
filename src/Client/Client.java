@@ -51,9 +51,19 @@ public class Client {
         
         System.out.println("AuthToken gerado: " + authToken);
         
+        String message;
+        JSONObject json = new JSONObject();
+        json.put("username", username);        
+        json.put("authToken", authToken);
+
+        message = json.toString();
+        String authTokenJson = (String) json.get("authToken");
+        System.out.println("JSON: "+ message);        
+        System.out.println("authToken JSONONN: "+ authTokenJson);
+
         /*Manda token de autenticação para o servidor*/
         PrintWriter pr = new PrintWriter(i.getOutputStream());
-        pr.println(authToken);
+        pr.println(message);        
         pr.flush();
         
         InputStreamReader in = new InputStreamReader(i.getInputStream());
@@ -62,12 +72,12 @@ public class Client {
         String str = bf.readLine();
         System.out.println("mensagem do servidor : "+ str);
         
-        String timeStamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        //String timeStamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
         
         /*Salva dados no JSON*/
         obj.put("Username", username);
         obj.put("Token", authToken);           
-        obj.put("Time", timeStamp);        
+        //obj.put("Time", timeStamp);        
         jrr.add(obj);
         
         try{

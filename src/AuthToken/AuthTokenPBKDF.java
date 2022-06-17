@@ -7,7 +7,6 @@ import javax.crypto.spec.PBEKeySpec;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.util.Scanner;
 import javax.crypto.SecretKey;
 import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 
