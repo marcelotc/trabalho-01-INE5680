@@ -26,26 +26,8 @@ public class Client {
         System.out.println("3. Excluir");
         System.out.println("Opcao:");
     }
-
-    public static void signUp(Socket i) throws NoSuchAlgorithmException, IOException{
-        JSONObject obj = new JSONObject();
-        JSONArray jrr = new JSONArray();
-        JSONParser jp = new JSONParser();
-        try{
-            FileReader file = new FileReader("UserData.json");
-            jrr=(JSONArray)jp.parse(file);
-        }catch(Exception ex){
-            JOptionPane.showMessageDialog(null,"Error occured");
-        }
-        
-        Scanner input1 = new Scanner(System.in);
-        System.out.println("Usuário: ");
-        String username = input1.next();
-        
-        Scanner input2 = new Scanner(System.in);
-        System.out.println("Senha : ");
-        String password = input2.next();
-
+    
+    public static String generateHash(String username, String password, Socket iServer) throws NoSuchAlgorithmException, IOException {
         /*Gera token de autenticação*/
         String authToken = AuthTokenPBKDF.AuthTokenGenerator(username, password, 1000);
         
@@ -65,15 +47,39 @@ public class Client {
         System.out.println("authToken JSONONN: "+ authTokenJson);
 
         /*Manda token de autenticação para o servidor*/
-        PrintWriter pr = new PrintWriter(i.getOutputStream());
+        PrintWriter pr = new PrintWriter(iServer.getOutputStream());
         pr.println(message);        
         pr.flush();
         
-        InputStreamReader in = new InputStreamReader(i.getInputStream());
+        InputStreamReader in = new InputStreamReader(iServer.getInputStream());
         BufferedReader bf = new BufferedReader(in);
         
         String scryptHash = bf.readLine();
         System.out.println("mensagem do servidor : "+ scryptHash);
+        
+        return scryptHash;
+    }
+    
+    public static void signUp(Socket i) throws NoSuchAlgorithmException, IOException{
+        JSONObject obj = new JSONObject();
+        JSONArray jrr = new JSONArray();
+        JSONParser jp = new JSONParser();
+        try{
+            FileReader file = new FileReader("UserData.json");
+            jrr=(JSONArray)jp.parse(file);
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,"Error occured");
+        }
+        
+        Scanner input1 = new Scanner(System.in);
+        System.out.println("Usuário: ");
+        String username = input1.next();
+        
+        Scanner input2 = new Scanner(System.in);
+        System.out.println("Senha : ");
+        String password = input2.next();
+
+       String scryptHash = generateHash(username, password, i);
         
         //String timeStamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
         
@@ -92,7 +98,7 @@ public class Client {
         JOptionPane.showMessageDialog(null,"Usuário cadastrado!");
     }
     
-    public static void signIn(){
+    public static void signIn(Socket iServer) throws NoSuchAlgorithmException, IOException{
         JSONArray jrr = new JSONArray();
         Object ob = null;
         JSONParser Jp = new JSONParser();
@@ -117,8 +123,10 @@ public class Client {
         System.out.println("Senha : ");
         String password = input2.next();
         
+        String scryptHash = generateHash(username, password, iServer);
+        
         obj.put("Username", username);
-        obj.put("Password", password);
+        obj.put("Token", scryptHash);
         
         for(int i=0;i<size;i++){
             if(obj.equals(jrr.get(i))){
@@ -137,7 +145,7 @@ public class Client {
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
         
         /*Abre a comunicação via socket com o servidor*/
-        Socket i = new Socket("localhost", 4999);
+        Socket iServer = new Socket("localhost", 4999);
         /*================================================*/
 
         final JDialog dialog = new JDialog();
@@ -152,11 +160,11 @@ public class Client {
             
             switch(opcao){
             case 1:
-                signUp(i);
+                signUp(iServer);
                 break;
                 
             case 2:
-                signIn();
+                signIn(iServer);
                 break;
                 
             case 3:
