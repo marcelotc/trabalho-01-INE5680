@@ -73,10 +73,6 @@ public class ScryptExample {
                 costParameter,
                 blocksize, parallelizationParam);
         
-
-        System.out.println("Chave derivada usando scrypt: ");
-        System.out.println(Hex.encodeHexString(derivedKeyFromScrypt));    
-        
         return Hex.encodeHexString(derivedKeyFromScrypt);
     }
 }

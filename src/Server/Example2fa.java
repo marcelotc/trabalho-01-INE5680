@@ -60,7 +60,6 @@ public class Example2fa {
         byte[] bytes = base32.decode(secretKey);
         String hexKey = Hex.encodeHexString(bytes);
         return TOTP.getOTP(hexKey);
-
     }
 
     public static String getGoogleAuthenticatorBarCode(String secretKey, String account, String issuer) {
