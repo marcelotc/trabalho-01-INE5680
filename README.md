@@ -2,8 +2,8 @@
 
 ## Como executar o programa: 
 
-- Primeiramente execute o servidor
-- Em seguida execute o cliente
+- Primeiramente execute o servidor localizado em: `src/Server/Server.java`
+- Em seguida execute o cliente localizado em: `src/Server/Server.java`
 
 ## Passos que devem ser implementados:
 
