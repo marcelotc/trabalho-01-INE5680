@@ -27,7 +27,7 @@ public class Client {
         System.out.println("Opcao:");
     }
     
-    public static String generateHash(String username, String password, Socket iServer) throws NoSuchAlgorithmException, IOException {
+    public static String generateToken(String username, String password, Socket iServer) throws NoSuchAlgorithmException, IOException {
         /*Gera token de autenticação*/
         String authToken = AuthTokenPBKDF.AuthTokenGenerator(username, password, 1000);
         
@@ -79,13 +79,13 @@ public class Client {
         System.out.println("Senha : ");
         String password = input2.next();
 
-       String scryptHash = generateHash(username, password, i);
+       String passowordToken = generateToken(username, password, i);
         
         //String timeStamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
         
         /*Salva dados no JSON*/
         obj.put("Username", username);
-        obj.put("Token", scryptHash);           
+        obj.put("Token", passowordToken);           
         jrr.add(obj);
         
         try{
@@ -123,10 +123,10 @@ public class Client {
         System.out.println("Senha : ");
         String password = input2.next();
         
-        String scryptHash = generateHash(username, password, iServer);
+        String passowordToken = generateToken(username, password, iServer);
         
         obj.put("Username", username);
-        obj.put("Token", scryptHash);
+        obj.put("Token", passowordToken);
         
         for(int i=0;i<size;i++){
             if(obj.equals(jrr.get(i))){
