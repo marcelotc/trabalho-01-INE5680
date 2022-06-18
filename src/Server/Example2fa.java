@@ -83,7 +83,7 @@ public class Example2fa {
 
     }
 
-    public static void generateTfa() throws InvalidKeyException, InvalidAlgorithmParameterException {
+    public static boolean generateTfa() throws InvalidKeyException, InvalidAlgorithmParameterException {
 
         try {
 
@@ -124,16 +124,20 @@ public class Example2fa {
             String code = scanner.nextLine(); // as vezes não limpa o buffer
 
             if (code.equals(getTOTPCode(secret))) {
-                System.out.println("Logado com sucesso!");
+                System.out.println("Logado com sucesso!");                
+                System.out.println("Digite uma mensagem para o servidor: ");
                 timer.cancel();
+                return true;
             } else {
                 System.out.println("Código 2FA inválido");
                 timer.cancel();
+                return false;
             }
         } catch (WriterException ex) {
             Logger.getLogger(Example2fa.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(Example2fa.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
     }
 }

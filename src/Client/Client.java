@@ -25,7 +25,6 @@ public class Client {
         System.out.println("0. Sair");
         System.out.println("1. Cadastro");
         System.out.println("2. Login");
-        System.out.println("3. Excluir");
         System.out.println("Opcao:");
     }
     
@@ -121,20 +120,46 @@ public class Client {
         
         obj.put("Username", username);
         obj.put("Token", passowordToken);
+
+        boolean tfaSuccess = false;
         
         for(int i=0;i<size;i++){
             if(obj.equals(jrr.get(i))){
                 // Se as credenciais forem válidas então o código 2FA é gerado
-                Example2fa.generateTfa();
+                boolean generateTfaResponse = Example2fa.generateTfa();
+                tfaSuccess = generateTfaResponse;
                 break;
             }else if(i==size-1){
                 JOptionPane.showMessageDialog(null,"Usuário/Senha incorreta!");
+                tfaSuccess = false;
             }
+        }
+        if (tfaSuccess) {
+            sendMessageToserver(iServer);
+        } else {
+            System.exit(0);
         }
     }
     
-    public static void delete(){
-        System.out.println("delete!");
+    public static void sendMessageToserver(Socket iServer) throws IOException{
+        Scanner scanner = new Scanner(System.in);
+        String input;
+        
+        do{
+            input = scanner.nextLine();
+            if (input.equalsIgnoreCase("sair")) {
+                iServer.close();
+                System.exit(0);
+                continue;
+            }else {
+                PrintWriter printWriter = new PrintWriter(iServer.getOutputStream(),true);
+                String message = " mensaggem: " + input;
+                printWriter.println(message);
+                System.out.println(message);
+                continue;
+            }
+        }while (!(input.equals("sair")));
+        
     }
     
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException, InvalidKeyException, InvalidAlgorithmParameterException {
@@ -160,10 +185,6 @@ public class Client {
                 
             case 2:
                 signIn(iServer);
-                break;
-                
-            case 3:
-                delete();
                 break;
             
             default:
