@@ -32,32 +32,26 @@ public class Client {
     public static String generateToken(String username, String password, Socket iServer) throws NoSuchAlgorithmException, IOException {
         /*Gera token de autenticação*/
         String authToken = AuthTokenPBKDF.AuthTokenGenerator(username, password, 1000);
-        
-        System.out.println("AuthToken gerado: " + authToken);
-        
+                
         /* Criação de um JSON com as keys username e authToken para passar para 
             o servidor via socket
         */
-        String message;
+        String usernameAuthTokenJson;
         JSONObject json = new JSONObject();
         json.put("username", username);        
         json.put("authToken", authToken);
-
-        message = json.toString();
-        String authTokenJson = (String) json.get("authToken");
-        System.out.println("JSON: "+ message);        
-        System.out.println("authToken JSONONN: "+ authTokenJson);
+        usernameAuthTokenJson = json.toString();
 
         /*Manda token de autenticação para o servidor*/
         PrintWriter pr = new PrintWriter(iServer.getOutputStream());
-        pr.println(message);        
+        pr.println(usernameAuthTokenJson);        
         pr.flush();
         
         InputStreamReader in = new InputStreamReader(iServer.getInputStream());
         BufferedReader bf = new BufferedReader(in);
         
+        /* scryptHash vindo do servidor*/
         String scryptHash = bf.readLine();
-        System.out.println("mensagem do servidor : "+ scryptHash);
         
         return scryptHash;
     }
@@ -81,10 +75,8 @@ public class Client {
         System.out.println("Senha : ");
         String password = input2.next();
 
-       String passowordToken = generateToken(username, password, i);
-        
-        //String timeStamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
-        
+        String passowordToken = generateToken(username, password, i);
+                
         /*Salva dados no JSON*/
         obj.put("Username", username);
         obj.put("Token", passowordToken);           

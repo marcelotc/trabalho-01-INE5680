@@ -19,21 +19,15 @@ public class Server {
         InputStreamReader in = new InputStreamReader(i.getInputStream());
         BufferedReader bf = new BufferedReader(in);
 
-        String str = bf.readLine();
+        String usernameAuthTokenJsonString = bf.readLine();
         JSONParser parser = new JSONParser();
-        JSONObject json = (JSONObject) parser.parse(str);
+        JSONObject usernameAuthTokenJson = (JSONObject) parser.parse(usernameAuthTokenJsonString);
 
-        String authTokenJson =  (String) json.get("authToken");  
-        String usernameJson =  (String) json.get("username");
-
-        System.out.println("cliente JSON : "+ str);  
-        System.out.println("cliente username : "+ authTokenJson);  
-        System.out.println("cliente authtoken : "+ usernameJson);
+        String authTokenJson =  (String) usernameAuthTokenJson.get("authToken");  
+        String usernameJson =  (String) usernameAuthTokenJson.get("username");
         
         String scryptHash = ScryptExample.ScryptGenerator(authTokenJson, usernameJson);
-            
-        System.out.println("ScryptHash servidor : "+ scryptHash);
-        
+                    
         PrintWriter pr = new PrintWriter(i.getOutputStream());
         pr.println(scryptHash);
         pr.flush();

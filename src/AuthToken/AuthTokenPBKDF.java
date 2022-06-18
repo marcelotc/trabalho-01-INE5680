@@ -56,20 +56,11 @@ public class AuthTokenPBKDF {
         int addProvider;
         addProvider = Security.addProvider(new BouncyCastleFipsProvider());
         
-        //String senha = "leopardo";
         String salt = (username + password);
         int it = 1000;
-          
-        //String salt = obj.getSalt();
-        
-        System.out.println("Senha original = " + password);
-        System.out.println("Sal gerado = " + salt);
-        System.out.println("Numero de iteracoes = " + it);
-        
+                          
         String chaveDerivada = generateDerivedKey(password, salt, it);
-       
-        System.out.println("Chave derivada da senha = " + chaveDerivada );
-        
+               
         return chaveDerivada;
         
     }

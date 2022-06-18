@@ -90,14 +90,14 @@ public class Example2fa {
 
             // Cria chave secreta simétrica
             String secret = generateSecretKey();
-            System.out.println("Chave = " + secret);
+            //System.out.println("Chave = " + secret);
             String TOTPcode = getTOTPCode(secret);
             System.out.println("TOTP Code = " + TOTPcode);
 
             String email = "email@gmail.com";
             String companyName = "Empresa";
             String barCodeUrl = getGoogleAuthenticatorBarCode(secret, email, companyName);
-            System.out.println("Bar Code URL = " + barCodeUrl);
+            //System.out.println("Bar Code URL = " + barCodeUrl);
 
             int width = 246;
             int height = 246;
@@ -105,7 +105,7 @@ public class Example2fa {
             // Fica no diretório do projeto.
             createQRCode(barCodeUrl, "matrixURL.png", height, width);
 
-            System.out.println("Procure o arquivo matrixCode.png no diretorio do projeto e leia o QR code para digitar o código");
+            //System.out.println("Procure o arquivo matrixCode.png no diretorio do projeto e leia o QR code para digitar o código");
             createQRCode(TOTPcode, "matrixCode.png", height, width);
             
             Timer timer = new Timer();
@@ -114,7 +114,7 @@ public class Example2fa {
                 private int i = 11;
                 public void run(){
                     if (i >= 0) {
-                                System.out.println("Entre o código de autenticação: "+ i--);
+                        System.out.println("Entre o código de autenticação : "+ i--);
                     }
                 }
             };
@@ -126,8 +126,10 @@ public class Example2fa {
 
             if (code.equals(getTOTPCode(secret))) {
                 System.out.println("Logado com sucesso!");
+                timer.cancel();
             } else {
                 System.out.println("Código 2FA inválido");
+                timer.cancel();
             }
         } catch (WriterException ex) {
             Logger.getLogger(Example2fa.class.getName()).log(Level.SEVERE, null, ex);
