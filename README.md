@@ -1,5 +1,10 @@
 # trabalho-01-INE5680
 
+Como executar o programa: 
+
+- Primeiramente execute o servidor
+- Em seguida execute o cliente
+
 Passos que devem ser implementados:
 
 - [x] 1. Cliente - usuário entra com login e senha
