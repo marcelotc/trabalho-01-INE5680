@@ -45,12 +45,15 @@ public class Client {
         Scanner input2 = new Scanner(System.in);
         System.out.println("Senha : ");
         String password = input2.next();
-        
+
         /*Gera token de autenticação*/
-        String authToken = AuthTokenPBKDF.AuthTokenGenerator(password, username, 1000);
+        String authToken = AuthTokenPBKDF.AuthTokenGenerator(username, password, 1000);
         
         System.out.println("AuthToken gerado: " + authToken);
         
+        /* Criação de um JSON com as keys username e authToken para passar para 
+            o servidor via socket
+        */
         String message;
         JSONObject json = new JSONObject();
         json.put("username", username);        
@@ -69,15 +72,14 @@ public class Client {
         InputStreamReader in = new InputStreamReader(i.getInputStream());
         BufferedReader bf = new BufferedReader(in);
         
-        String str = bf.readLine();
-        System.out.println("mensagem do servidor : "+ str);
+        String scryptHash = bf.readLine();
+        System.out.println("mensagem do servidor : "+ scryptHash);
         
         //String timeStamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
         
         /*Salva dados no JSON*/
         obj.put("Username", username);
-        obj.put("Token", authToken);           
-        //obj.put("Time", timeStamp);        
+        obj.put("Token", scryptHash);           
         jrr.add(obj);
         
         try{

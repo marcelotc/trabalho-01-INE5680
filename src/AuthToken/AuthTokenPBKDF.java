@@ -49,7 +49,7 @@ public class AuthTokenPBKDF {
         return Hex.encodeHexString(salt);
     }
 
-    public static String AuthTokenGenerator(String password, String salt, Integer iterations) throws NoSuchAlgorithmException {
+    public static String AuthTokenGenerator(String username, String password, Integer iterations) throws NoSuchAlgorithmException {
         AuthTokenPBKDF obj = new AuthTokenPBKDF();     
         
         // Instanciar um novo Security provider
@@ -57,10 +57,10 @@ public class AuthTokenPBKDF {
         addProvider = Security.addProvider(new BouncyCastleFipsProvider());
         
         //String senha = "leopardo";
-        //String salt = "aafa2148161ec6d4a438fbfa9ded6fdc";
+        String salt = (username + password);
         int it = 1000;
           
-        salt = obj.getSalt();
+        //String salt = obj.getSalt();
         
         System.out.println("Senha original = " + password);
         System.out.println("Sal gerado = " + salt);
