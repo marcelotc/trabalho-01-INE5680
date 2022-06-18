@@ -30,13 +30,6 @@ public class Server {
         System.out.println("cliente username : "+ authTokenJson);  
         System.out.println("cliente authtoken : "+ usernameJson);
         
-        /* TODO */
-        /* A função SCRYPT entra aqui e passa como parâmetro authTokenJson e  usernameJson
-           e salva no JSON e lembrar de modificar o salt do PBKDF e o IV do Scrypt para serem fixos
-           
-            Com o hash criado pela função do Scrypt guardar no JSON do cliente para recuperar depois 
-            quando fizer o login
-        */
         String scryptHash = ScryptExample.ScryptGenerator(authTokenJson, usernameJson);
             
         System.out.println("ScryptHash servidor : "+ scryptHash);
