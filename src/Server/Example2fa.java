@@ -14,7 +14,7 @@
  * Para ler: https://levelup.gitconnected.com/how-google-authenticator-hmac-based-one-time-password-and-time-based-one-time-password-work-17c6bdef0deb
  *
  */
-package TFA;
+package Server;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -32,6 +32,8 @@ import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
 import com.google.zxing.common.ByteMatrix;
 import java.io.FileOutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,7 +84,7 @@ public class Example2fa {
 
     }
 
-    public static void main(String args[]) throws InvalidKeyException, InvalidAlgorithmParameterException {
+    public static void generateTfa() throws InvalidKeyException, InvalidAlgorithmParameterException {
 
         try {
 
@@ -91,22 +93,6 @@ public class Example2fa {
             System.out.println("Chave = " + secret);
             String TOTPcode = getTOTPCode(secret);
             System.out.println("TOTP Code = " + TOTPcode);
-
-            /**
-            // String secret = "QDWSM3OYBPGTEVSPB5FKVDM3CSNCWHVK"; 
-            String lastCode = null;
-            while (true) {
-                String code = getTOTPCode(secret);
-                if (!code.equals(lastCode)) {
-                    System.out.println(code);
-                }
-                lastCode = code;
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                };
-            }
-            * */
 
             String email = "email@gmail.com";
             String companyName = "Empresa";
@@ -121,17 +107,27 @@ public class Example2fa {
 
             System.out.println("Procure o arquivo matrixCode.png no diretorio do projeto e leia o QR code para digitar o código");
             createQRCode(TOTPcode, "matrixCode.png", height, width);
+            
+            Timer timer = new Timer();
+
+            TimerTask task = new TimerTask(){
+                private int i = 11;
+                public void run(){
+                    if (i >= 0) {
+                                System.out.println("Entre o código de autenticação: "+ i--);
+                    }
+                }
+            };
+            timer.scheduleAtFixedRate(task, 0, 1000); //1000ms = 1sec
 
             Scanner scanner = new Scanner(System.in);
-
-            System.out.println("Entre o código de autenticação: ");
-
+            
             String code = scanner.nextLine(); // as vezes não limpa o buffer
 
             if (code.equals(getTOTPCode(secret))) {
-                System.out.println("Logged in successfully");
+                System.out.println("Logado com sucesso!");
             } else {
-                System.out.println("Invalid 2FA Code");
+                System.out.println("Código 2FA inválido");
             }
         } catch (WriterException ex) {
             Logger.getLogger(Example2fa.class.getName()).log(Level.SEVERE, null, ex);

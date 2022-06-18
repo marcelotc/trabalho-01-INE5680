@@ -9,12 +9,14 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import AuthToken.AuthTokenPBKDF;
+import Server.Example2fa;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.net.*;
 import java.io.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Client {
     
@@ -98,7 +100,7 @@ public class Client {
         JOptionPane.showMessageDialog(null,"Usuário cadastrado!");
     }
     
-    public static void signIn(Socket iServer) throws NoSuchAlgorithmException, IOException{
+    public static void signIn(Socket iServer) throws NoSuchAlgorithmException, IOException, InvalidKeyException, InvalidAlgorithmParameterException{
         JSONArray jrr = new JSONArray();
         Object ob = null;
         JSONParser Jp = new JSONParser();
@@ -130,7 +132,8 @@ public class Client {
         
         for(int i=0;i<size;i++){
             if(obj.equals(jrr.get(i))){
-                JOptionPane.showMessageDialog(null,"Usuário logado!");
+                // Se as credenciais forem válidas então o código 2FA é gerado
+                Example2fa.generateTfa();
                 break;
             }else if(i==size-1){
                 JOptionPane.showMessageDialog(null,"Usuário/Senha incorreta!");
@@ -142,12 +145,12 @@ public class Client {
         System.out.println("delete!");
     }
     
-    public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
+    public static void main(String[] args) throws NoSuchAlgorithmException, IOException, InvalidKeyException, InvalidAlgorithmParameterException {
         
         /*Abre a comunicação via socket com o servidor*/
         Socket iServer = new Socket("localhost", 4999);
         /*================================================*/
-
+        
         final JDialog dialog = new JDialog();
         dialog.setAlwaysOnTop(true);  
         
