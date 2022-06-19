@@ -21,7 +21,7 @@ public class Server {
         
         InputStreamReader in = new InputStreamReader(cliente.getInputStream());
         BufferedReader bf = new BufferedReader(in);
-        
+
         String usernameAuthTokenJsonString = bf.readLine();
         JSONParser parser = new JSONParser();
         JSONObject usernameAuthTokenJson = (JSONObject) parser.parse(usernameAuthTokenJsonString);
@@ -34,7 +34,7 @@ public class Server {
         PrintWriter pr = new PrintWriter(cliente.getOutputStream());
         pr.println(scryptHash);
         pr.flush();
-                
+
         Scanner s = new Scanner(cliente.getInputStream());
         while (s.hasNextLine()) {
             System.out.println(s.nextLine());

@@ -48,7 +48,7 @@ public class Client {
         
         InputStreamReader in = new InputStreamReader(iServer.getInputStream());
         BufferedReader bf = new BufferedReader(in);
-        
+
         /* scryptHash vindo do servidor*/
         String scryptHash = bf.readLine();
         
@@ -89,6 +89,7 @@ public class Client {
             JOptionPane.showMessageDialog(null,"Error occured");
         }
         JOptionPane.showMessageDialog(null,"Usuário cadastrado!");
+        System.exit(0);
     }
     
     public static void signIn(Socket iServer) throws NoSuchAlgorithmException, IOException, InvalidKeyException, InvalidAlgorithmParameterException{
