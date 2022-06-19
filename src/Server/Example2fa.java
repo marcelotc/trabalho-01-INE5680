@@ -110,7 +110,7 @@ public class Example2fa {
             Timer timer = new Timer();
 
             TimerTask task = new TimerTask(){
-                private int i = 11;
+                private int i = 15;
                 public void run(){
                     if (i >= 0) {
                         System.out.println("Entre o código de autenticação : "+ i--);
