@@ -17,13 +17,26 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.security.Key;
+import java.security.SecureRandom;
+import java.security.Security;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
+import AES.Utils;  
+import java.util.Base64;
 
 public class Client {
-    
+
+    static InputStreamReader in = null;
+    static BufferedReader bf = null;
+    static PrintWriter pr = null;
+    static Socket iServer = null;
+
     public static void menu(){
         System.out.println("\tCadastro de clientes");
         System.out.println("0. Sair");
-        System.out.println("1. Cadastro");
+        System.out.println("1. Cadastrar usuário");
         System.out.println("2. Login");
         System.out.println("Opcao:");
     }
@@ -31,7 +44,7 @@ public class Client {
     public static String generateToken(String username, String password, Socket iServer) throws NoSuchAlgorithmException, IOException {
         /*Gera token de autenticação*/
         String authToken = AuthTokenPBKDF.AuthTokenGenerator(username, password, 1000);
-                
+
         /* Criação de um JSON com as keys username e authToken para passar para 
             o servidor via socket
         */
@@ -42,28 +55,35 @@ public class Client {
         usernameAuthTokenJson = json.toString();
 
         /*Manda token de autenticação para o servidor*/
-        PrintWriter pr = new PrintWriter(iServer.getOutputStream());
+        if (pr == null) { 
+            pr = new PrintWriter(iServer.getOutputStream());
+        }
+        
         pr.println(usernameAuthTokenJson);        
         pr.flush();
-        
-        InputStreamReader in = new InputStreamReader(iServer.getInputStream());
-        BufferedReader bf = new BufferedReader(in);
+
+        if (in == null && bf == null) {
+            in = new InputStreamReader(iServer.getInputStream());
+            bf = new BufferedReader(in);
+        }
         
         /* scryptHash vindo do servidor*/
         String scryptHash = bf.readLine();
-        
+
         return scryptHash;
     }
     
-    public static void signUp(Socket i) throws NoSuchAlgorithmException, IOException{
-        JSONObject obj = new JSONObject();
-        JSONArray jrr = new JSONArray();
-        JSONParser jp = new JSONParser();
+    public static void signUp(Socket i) throws Exception, NoSuchAlgorithmException, IOException{
+        JSONObject jsonObject = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        JSONParser jsonParser = new JSONParser();
+
         try{
             FileReader file = new FileReader("UserData.json");
-            jrr=(JSONArray)jp.parse(file);
+            jsonArray = (JSONArray)jsonParser.parse(file);
+            file.close();   
         }catch(Exception ex){
-            JOptionPane.showMessageDialog(null,"Error occured");
+            JOptionPane.showMessageDialog(null,"Erro ao ler arquivo JSON");
         }
         
         Scanner input1 = new Scanner(System.in);
@@ -77,37 +97,35 @@ public class Client {
         String passowordToken = generateToken(username, password, i);
                 
         /*Salva dados no JSON*/
-        obj.put("Username", username);
-        obj.put("Token", passowordToken);           
-        jrr.add(obj);
+        jsonObject.put("Username", username);
+        jsonObject.put("Token", passowordToken);           
+        jsonArray.add(jsonObject);
         
         try{
             FileWriter file = new FileWriter("UserData.json");
-            file.write(jrr.toJSONString());
+            file.write(jsonArray.toJSONString());
             file.close();
         }catch(Exception ex){
-            JOptionPane.showMessageDialog(null,"Error occured");
+            JOptionPane.showMessageDialog(null,"Erro ao ler gravar arquivo JSON");
         }
-        JOptionPane.showMessageDialog(null,"Usuário cadastrado!");
+        JOptionPane.showMessageDialog(null,"Usuário cadastrado com sucesso!");
     }
     
-    public static void signIn(Socket iServer) throws NoSuchAlgorithmException, IOException, InvalidKeyException, InvalidAlgorithmParameterException{
-        JSONArray jrr = new JSONArray();
-        Object ob = null;
-        JSONParser Jp = new JSONParser();
-        //fetch file--
+    public static void signIn(Socket iServer) throws Exception, NoSuchAlgorithmException, IOException, InvalidKeyException, InvalidAlgorithmParameterException{
+        JSONObject jsonObject = new JSONObject();        
+        JSONArray jsonArray = new JSONArray();
+        JSONParser jsonParser = new JSONParser();
+        
         try{
             FileReader file = new FileReader("UserData.json");
-            ob=Jp.parse(file);
-            jrr=(JSONArray) ob;
+            jsonArray = (JSONArray)jsonParser.parse(file);
             file.close();
         }catch(Exception ex){
-            JOptionPane.showMessageDialog(null,"Error Occured While fetching");
+            JOptionPane.showMessageDialog(null,"Erro ao ler arquivo JSON");
         }
         
-        JSONObject obj = new JSONObject();
-        int size = jrr.size();
-        
+        int size = jsonArray.size();
+
         Scanner input1 = new Scanner(System.in);
         System.out.println("Usuário: ");
         String username = input1.next();
@@ -118,13 +136,15 @@ public class Client {
         
         String passowordToken = generateToken(username, password, iServer);
         
-        obj.put("Username", username);
-        obj.put("Token", passowordToken);
+        jsonObject.put("Username", username);
+        jsonObject.put("Token", passowordToken);
 
         boolean tfaSuccess = false;
+
         
         for(int i=0;i<size;i++){
-            if(obj.equals(jrr.get(i))){
+            System.out.println(jsonArray.get(i));  
+            if(jsonObject.equals(jsonArray.get(i))){
                 // Se as credenciais forem válidas então o código 2FA é gerado
                 boolean generateTfaResponse = Example2fa.generateTfa();
                 tfaSuccess = generateTfaResponse;
@@ -141,7 +161,7 @@ public class Client {
         }
     }
     
-    public static void sendMessageToserver(Socket iServer) throws IOException{
+    public static void sendMessageToserver(Socket iServer) throws Exception, IOException{
         Scanner scanner = new Scanner(System.in);
         String input;
         
@@ -153,21 +173,42 @@ public class Client {
                 continue;
             }else {
                 PrintWriter printWriter = new PrintWriter(iServer.getOutputStream(),true);
-                String message = " mensaggem: " + input;
-                printWriter.println(message);
-                System.out.println(message);
+                
+                int addProvider = Security.addProvider(new BouncyCastleFipsProvider());
+
+                SecureRandom	random = new SecureRandom();
+                IvParameterSpec ivSpec = Utils.createCtrIvForAES(1, random);
+                Key             key = Utils.createKeyForAES(128, random);
+                Cipher          cipher = Cipher.getInstance("AES/CTR/NoPadding", "BCFIPS");
+                
+                // Etapa de cifragem
+                cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+                byte[] cipherText = cipher.doFinal(Utils.toByteArray(input));
+                byte[] ivBytes = ivSpec.getIV();
+
+                String encodedKey = Base64.getEncoder().encodeToString(key.getEncoded());
+
+                printWriter.println(cipherText);
+                System.out.println("Mensagem cifrada: " + cipherText);
+
+                printWriter.println(encodedKey);
+                System.out.println("Key: " + encodedKey);
+
+                printWriter.println(ivBytes);
+                System.out.println("IV: " + ivBytes);
+
                 continue;
             }
         }while (!(input.equals("sair")));
         
     }
-    
-    public static void main(String[] args) throws NoSuchAlgorithmException, IOException, InvalidKeyException, InvalidAlgorithmParameterException {
+
+    public static void main(String[] args) throws Exception, NoSuchAlgorithmException, IOException, InvalidKeyException, InvalidAlgorithmParameterException {
         
-        /*Abre a comunicação via socket com o servidor*/
-        Socket iServer = new Socket("localhost", 4999);
+         /*Abre a comunicação via socket com o servidor*/
+        iServer = new Socket("localhost", 4999);
         /*================================================*/
-        
+
         final JDialog dialog = new JDialog();
         dialog.setAlwaysOnTop(true);  
         
