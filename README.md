@@ -16,8 +16,8 @@ guardado no arquivo e valida
 simulando a necessidade de um celular).
 - [x] 9. Cliente - O cliente lê o QR Code e digita o código obtido na tela para enviar para o servidor
 - [x] 10. Servidor – Valida o código obtido como 2º fator de autenticação
-- [ ] 11. Cliente e Servidor - usam o código para derivar uma chave simétrica de sessão com o PBKDF2
+- [x] 11. Cliente e Servidor - usam o código para derivar uma chave simétrica de sessão com o PBKDF2
 para cifrar a comunicação simétrica entre ambos. Deve ser usada CRIPTOGRAFIA AUTENTICADA
 para cifragem e decifragem (modo GCM ou outro)
-- [ ] 12. Cliente e Servidor - A partir desse momento o Cliente e o Servidor ficam em um loop trocando
+- [x] 12. Cliente e Servidor - A partir desse momento o Cliente e o Servidor ficam em um loop trocando
 mensagens cifradas com criptografia autenticada
